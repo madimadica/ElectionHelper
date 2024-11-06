@@ -19,7 +19,7 @@
   </head>
   <body>
 
-    <main class="container">
+    <main class="container-fluid">
         <h1>Election Spreadsheet</h1>
         <table>
             <tbody>
@@ -46,7 +46,10 @@
                 2: "Percent In",
                 3: "Trump",
                 4: "Harris",
-                5: "Needs"
+                5: "Needs",
+                6: "Ahead By",
+                7: "Trump %",
+                8: "Harris %"
             };
             const e_table = document.createElement("table");
             const e_tbody = document.createElement("tbody");
@@ -61,7 +64,7 @@
                 e_tbody.appendChild(e_tr);
             }
 
-            for (let row = 1; row <= 4; row++) {
+            for (let row = 1; row <= 7; row++) {
                 const e_tr = document.createElement("tr");
                 e_tr.appendChild($td( rowMap[row + 1] ))
                 for (let col = 1; col <= colCount; ++col) {
@@ -70,7 +73,7 @@
                     e_input.type = "text";
                     e_input.className = "form-control";
                     e_input.id = `cell${row}${col}`;
-                    if (row === 4) {
+                    if (row >= 4) {
                         e_input.disabled = true;
                     }
                     e_td.appendChild(e_input);
@@ -81,7 +84,7 @@
             document.querySelector("tbody").replaceWith(e_tbody);
         }
 
-        const COLS = 5;
+        const COLS = 8;
 
         genTable(COLS);
 
@@ -93,6 +96,9 @@
                 this.row2 = document.getElementById(`cell2${colNum}`);
                 this.row3 = document.getElementById(`cell3${colNum}`);
                 this.row4 = document.getElementById(`cell4${colNum}`);
+                this.e_aheadBy = document.getElementById(`cell5${colNum}`);
+                this.e_trumpPercent = document.getElementById(`cell6${colNum}`);
+                this.e_harrisPercent = document.getElementById(`cell7${colNum}`);
 
                 this.percentIn = 0.1;
                 this.trumpVotes = 0;
@@ -117,6 +123,10 @@
                 });
             }
 
+            static #getPercentStr(numerator, denominator) {
+                return ((100.0 * numerator) / denominator).toFixed(2) + "%";
+            }
+
             updateComputed() {
                 let totalVotesCounted = this.trumpVotes + this.harrisVotes;
                 let totalVotes = totalVotesCounted / this.percentIn;
@@ -128,6 +138,9 @@
                 let leaderNeeds = splitVote;
                 let loserNeedsPercent = (loserNeeds) / (loserNeeds + leaderNeeds);
                 this.row4.value = (loserNeedsPercent * 100).toFixed(2) + "%";
+                this.e_aheadBy.value = aheadBy;
+                this.e_trumpPercent.value = Column.#getPercentStr(this.trumpVotes, totalVotesCounted);
+                this.e_harrisPercent.value = Column.#getPercentStr(this.harrisVotes, totalVotesCounted);
             }
         }
 
